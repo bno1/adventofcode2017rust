@@ -1,0 +1,10 @@
+[package]
+name = "adventofcode2017rust"
+version = "0.1.0"
+authors = ["bno1"]
+
+[dependencies]
+
+[[bin]]
+name = "day01"
+path = "src/day01.rs"
