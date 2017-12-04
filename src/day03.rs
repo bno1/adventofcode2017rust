@@ -45,12 +45,15 @@ fn spiral_to_cart(n: u32) -> (i32, i32) {
     // 3 0 1 2 3
     let r = (n as i32 - base) % (width - 1);
 
+    let a = lvl;
+    let b = 1 - lvl + r;
+
     // compute (x, y) from (q, r)
     match q {
-        0 => (lvl, 1 - lvl + r),
-        1 => (lvl - 1 - r, lvl),
-        2 => (-lvl, lvl - 1 - r),
-        3 => (1 - lvl + r, -lvl),
+        0 => (a, b),
+        1 => (-b, a),
+        2 => (-a, -b),
+        3 => (b, -a),
         _ => panic!("Unexpected quotient {}", q),
     }
 }
@@ -77,7 +80,7 @@ fn spiral_greater_than(n: u32) -> u32 {
         // reserve space for the new level of the spiral
         dq.resize(new_len, 0);
 
-        // trick to greatly simplify the algorithm (gets rid of corner cases)
+        // trick to greatly simplify the algorithm (avoids corner cases)
         // copy the last element of the spiral to the front
         {
             let tmp = dq[old_len - 1];
