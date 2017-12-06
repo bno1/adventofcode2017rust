@@ -4,6 +4,7 @@ use std::io;
 use std::io::BufRead;
 use std::iter::FromIterator;
 
+
 fn has_duplicates<T: Hash + Eq, I: Iterator<Item=T>>(i: I) -> bool {
     let mut set: HashSet<T> = HashSet::new();
 
