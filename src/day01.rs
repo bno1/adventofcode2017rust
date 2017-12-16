@@ -7,8 +7,7 @@ fn solve_captcha1(s: &str) -> u32 {
 
     for c in chars {
         if c == prev_char {
-            sum += c.to_digit(10)
-                .expect("Captcha is invalid");
+            sum += c.to_digit(10).expect("Captcha is invalid");
         }
 
         prev_char = c;
@@ -24,8 +23,7 @@ fn solve_captcha2(s: &str) -> u32 {
 
     for (c1, c2) in s.chars().zip(chars2) {
         if c1 == c2 {
-            sum += c1.to_digit(10)
-                .expect("Captcha is invalid");
+            sum += c1.to_digit(10).expect("Captcha is invalid");
         }
     }
 
@@ -35,11 +33,10 @@ fn solve_captcha2(s: &str) -> u32 {
 fn main() {
     let mut input = String::new();
 
-    io::stdin().read_line(&mut input)
-        .unwrap();
+    io::stdin().read_line(&mut input).unwrap();
 
     let input = input.trim();
 
-    println!("Solution 1: {}", solve_captcha1(&input));
-    println!("Solution 2: {}", solve_captcha2(&input));
+    println!("Solution 1: {}", solve_captcha1(input));
+    println!("Solution 2: {}", solve_captcha2(input));
 }

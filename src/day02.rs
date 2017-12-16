@@ -2,19 +2,17 @@ use std::io;
 use std::io::BufRead;
 use std::cmp;
 
-fn parse_line(l: String) -> Vec<i32> {
-    l.split_whitespace()
-     .map(|x| x.parse().unwrap())
-     .collect()
+fn parse_line(l: &str) -> Vec<i32> {
+    l.split_whitespace().map(|x| x.parse().unwrap()).collect()
 }
 
 fn min_max(l: &Vec<i32>) -> i32 {
     l.iter()
-     .fold(None,
-        |mm, x| mm.map(|(mi, ma)| (cmp::min(mi, x), cmp::max(ma, x)))
-                  .or(Some((x, x)))
-     )
-     .map_or(0, |(mi, ma)| ma - mi)
+        .fold(None, |mm, x| {
+            mm.map(|(mi, ma)| (cmp::min(mi, x), cmp::max(ma, x)))
+                .or_else(|| Some((x, x)))
+        })
+        .map_or(0, |(mi, ma)| ma - mi)
 }
 
 fn quotient(l: &Vec<i32>) -> i32 {
@@ -35,8 +33,10 @@ fn quotient(l: &Vec<i32>) -> i32 {
 fn main() {
     let stdin = io::stdin();
 
-    let matrix: Vec<Vec<i32>> = stdin.lock().lines()
-        .map(|l| l.map(parse_line).unwrap())
+    let matrix: Vec<Vec<i32>> = stdin
+        .lock()
+        .lines()
+        .map(|l| parse_line(l.unwrap().as_str()))
         .collect();
 
     let minmax_sum: i32 = matrix.iter().map(min_max).sum();

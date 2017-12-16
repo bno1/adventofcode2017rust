@@ -1,6 +1,5 @@
 use std::io;
 
-
 fn step(v: &mut Vec<i32>) {
     let mut longest_i = 0;
     let mut longest = v[0];
@@ -33,7 +32,7 @@ fn find_cycle(init: &Vec<i32>) -> (u32, u32) {
 
         for i in 0..iters.len() {
             if iters[i] == last {
-                return (iters.len() as u32, (iters.len() - i) as u32)
+                return (iters.len() as u32, (iters.len() - i) as u32);
             }
         }
 

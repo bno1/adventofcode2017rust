@@ -1,8 +1,7 @@
 use std::io;
 use std::io::BufRead;
 
-
-fn find_exit<'a, T: Iterator<Item=&'a i32>>(t: T, f: fn(i32) -> i32) -> u32 {
+fn find_exit<'a, T: Iterator<Item = &'a i32>>(t: T, f: fn(i32) -> i32) -> u32 {
     let mut v: Vec<i32> = t.cloned().collect();
 
     let mut i: i32 = 0;
@@ -21,17 +20,15 @@ fn find_exit<'a, T: Iterator<Item=&'a i32>>(t: T, f: fn(i32) -> i32) -> u32 {
 fn main() {
     let stdin = io::stdin();
 
-    let input: Vec<i32> = stdin.lock()
+    let input: Vec<i32> = stdin
+        .lock()
         .lines()
         .map(|l| l.unwrap().parse().unwrap())
         .collect();
 
     println!("Solution 1: {}", find_exit(input.iter(), |x| x + 1));
-    println!("Solution 2: {}", find_exit(input.iter(), |x|
-        if x == 3 {
-            x - 1
-        } else {
-            x + 1
-        })
+    println!(
+        "Solution 2: {}",
+        find_exit(input.iter(), |x| if x == 3 { x - 1 } else { x + 1 })
     );
 }

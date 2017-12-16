@@ -3,7 +3,6 @@ use std::cmp::min;
 use std::cmp::max;
 use std::collections::VecDeque;
 
-
 fn spiral_to_cart(n: u32) -> (i32, i32) {
     if n == 1 {
         return (0, 0);
@@ -96,13 +95,13 @@ fn spiral_greater_than(n: u32) -> u32 {
         for j in 0..4 {
             let base = j * 2 * (lvl - 1);
 
-            for i in 0..2*lvl {
+            for i in 0..2 * lvl {
                 // range of elements of the edge that are neighbouring p
                 let a = base + max(i, 1) - 1;
                 let b = base + min(i + 1, 2 * (lvl - 1));
 
                 // sum them up
-                for q in a..b+1 {
+                for q in a..b + 1 {
                     s += dq[q];
                 }
 
@@ -119,12 +118,12 @@ fn spiral_greater_than(n: u32) -> u32 {
         dq[p - 1] += 2 * dq[old_len + 1];
 
         // remove the old level of the spiral
-        for _ in 0..old_len+1 {
+        for _ in 0..old_len + 1 {
             dq.pop_front();
         }
 
         // check if an element is greater than n
-        for c in dq.iter() {
+        for c in &dq {
             if *c > n {
                 return *c;
             }
@@ -139,8 +138,7 @@ fn mh_norm(a: (i32, i32)) -> i32 {
 fn main() {
     let mut input_raw = String::new();
 
-    io::stdin().read_line(&mut input_raw)
-        .unwrap();
+    io::stdin().read_line(&mut input_raw).unwrap();
 
     let input: u32 = input_raw.trim().parse().unwrap();
 

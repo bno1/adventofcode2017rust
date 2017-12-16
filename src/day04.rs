@@ -4,8 +4,7 @@ use std::io;
 use std::io::BufRead;
 use std::iter::FromIterator;
 
-
-fn has_duplicates<T: Hash + Eq, I: Iterator<Item=T>>(i: I) -> bool {
+fn has_duplicates<T: Hash + Eq, I: Iterator<Item = T>>(i: I) -> bool {
     let mut set: HashSet<T> = HashSet::new();
 
     for x in i {
@@ -28,26 +27,25 @@ fn main() {
 
     let input: Vec<String> = stdin.lock().lines().map(|l| l.unwrap()).collect();
 
-    println!("Soltion 1: {}",
-        input.iter().fold(0, |cnt, x|
-            if has_duplicates(x.split_whitespace()) {
+    println!(
+        "Soltion 1: {}",
+        input
+            .iter()
+            .fold(0, |cnt, x| if has_duplicates(x.split_whitespace()) {
                 cnt
             } else {
                 cnt + 1
-            }
-        )
+            })
     );
 
-    println!("Soltion 2: {}",
-        input.iter().fold(0, |cnt, x|
+    println!(
+        "Soltion 2: {}",
+        input.iter().fold(0, |cnt, x| {
             if has_duplicates(x.split_whitespace().map(sort_string)) {
                 cnt
             } else {
                 cnt + 1
             }
-        )
+        })
     );
-
-
-
 }
