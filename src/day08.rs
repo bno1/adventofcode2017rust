@@ -5,46 +5,49 @@ use std::collections::HashMap;
 use std::io;
 use std::io::BufRead;
 
-
 type Word = i32;
+type CondFunc = fn(Word, Word) -> bool;
 
 enum Operand {
     Reg(String),
-    Const(Word)
+    Const(Word),
 }
 
 struct Condition {
-    func: fn(Word, Word) -> bool,
+    func: CondFunc,
     oper1: Operand,
-    oper2: Operand
+    oper2: Operand,
 }
 
 enum Instruction {
-    Add{ reg: String, delta: Word, cond: Condition }
+    Add {
+        reg: String,
+        delta: Word,
+        cond: Condition,
+    },
 }
 
 struct CPU {
     regs: HashMap<String, Word>,
-    max_reg: Option<Word>
+    max_reg: Option<Word>,
 }
 
 impl CPU {
     pub fn new() -> CPU {
         CPU {
             regs: HashMap::new(),
-            max_reg: None
+            max_reg: None,
         }
     }
 
     pub fn get_operand(&self, op: &Operand) -> Word {
         match *op {
             Operand::Reg(ref reg) => self.regs.get(reg).map_or(0, |v| *v),
-            Operand::Const(val) => val
+            Operand::Const(val) => val,
         }
     }
 
-    pub fn modify_reg<F: FnOnce(&mut Word) -> ()>(&mut self, reg: &str, f: F)
-    {
+    pub fn modify_reg<F: FnOnce(&mut Word) -> ()>(&mut self, reg: &str, f: F) {
         let rval = self.regs.entry(String::from(reg)).or_insert(0);
         f(rval);
 
@@ -61,15 +64,19 @@ impl CPU {
 
     pub fn run_instr(&mut self, instr: &Instruction) {
         match *instr {
-            Instruction::Add{ref reg, delta, ref cond} =>
-                if self.check_cond(cond) {
-                    self.modify_reg(reg.as_str(), |r| *r += delta)
-                }
+            Instruction::Add {
+                ref reg,
+                delta,
+                ref cond,
+            } => if self.check_cond(cond) {
+                self.modify_reg(reg.as_str(), |r| *r += delta)
+            },
         }
     }
 
     pub fn run_program<'a, T>(&mut self, prog: T)
-    where T: Iterator<Item=&'a Instruction>
+    where
+        T: Iterator<Item = &'a Instruction>,
     {
         for instr in prog {
             self.run_instr(instr);
@@ -80,37 +87,35 @@ impl CPU {
 struct LineParser {
     re_instr: Regex,
     re_const: Regex,
-    re_reg: Regex
+    re_reg: Regex,
 }
 
 impl LineParser {
     pub fn new() -> Result<LineParser, regex::Error> {
-        let re_instr =
-            match Regex::new(concat!(
-                // register     operation    amount      if
-                r"([a-zA-Z]+)\s+(inc|dec)\s+([+-]*\d+)\s+if\s+",
-                // op1        condition        op2
-                r"(\S+)\s+(>|>=|==|!=|<|<=)\s+(\S+)"
-            ))
-        {
+        let re_instr = match Regex::new(concat!(
+            // register     operation    amount      if
+            r"([a-zA-Z]+)\s+(inc|dec)\s+([+-]*\d+)\s+if\s+",
+            // op1        condition        op2
+            r"(\S+)\s+(>|>=|==|!=|<|<=)\s+(\S+)"
+        )) {
             Ok(re) => re,
-            Err(e) => return Err(e)
+            Err(e) => return Err(e),
         };
 
         let re_const = match Regex::new(r"^[+-]*[0-9]+$") {
             Ok(re) => re,
-            Err(e) => return Err(e)
+            Err(e) => return Err(e),
         };
 
         let re_reg = match Regex::new(r"^[a-zA-Z]+$") {
             Ok(re) => re,
-            Err(e) => return Err(e)
+            Err(e) => return Err(e),
         };
 
         Ok(LineParser {
             re_instr: re_instr,
             re_const: re_const,
-            re_reg: re_reg
+            re_reg: re_reg,
         })
     }
 
@@ -127,36 +132,35 @@ impl LineParser {
     pub fn parse(&self, l: &str) -> Result<Instruction, String> {
         let captures = match self.re_instr.captures(l) {
             Some(c) => c,
-            None => return Err(format!("'{}' is not a valid instruction", l))
+            None => return Err(format!("'{}' is not a valid instruction", l)),
         };
 
         let reg = captures.get(1).unwrap().as_str();
         let sign = match captures.get(2).unwrap().as_str() {
             "inc" => 1,
             "dec" => -1,
-            x => return Err(format!("Unexpected instruction '{}'", x))
+            x => return Err(format!("Unexpected instruction '{}'", x)),
         };
         let delta: Word = captures.get(3).unwrap().as_str().parse().unwrap();
 
         let cond_a = match self.parse_oper(captures.get(4).unwrap().as_str()) {
             Ok(oper) => oper,
-            Err(e) => return Err(e)
+            Err(e) => return Err(e),
         };
 
-        let cond_f: fn(Word, Word) -> bool =
-            match captures.get(5).unwrap().as_str() {
-                ">" => |a, b| a > b,
-                ">=" => |a, b| a >= b,
-                "==" => |a, b| a == b,
-                "!=" => |a, b| a != b,
-                "<=" => |a, b| a <= b,
-                "<" => |a, b| a < b,
-                x => return Err(format!("Unexpected comparison '{}'", x))
-            };
+        let cond_f: CondFunc = match captures.get(5).unwrap().as_str() {
+            ">" => |a, b| a > b,
+            ">=" => |a, b| a >= b,
+            "==" => |a, b| a == b,
+            "!=" => |a, b| a != b,
+            "<=" => |a, b| a <= b,
+            "<" => |a, b| a < b,
+            x => return Err(format!("Unexpected comparison '{}'", x)),
+        };
 
         let cond_b = match self.parse_oper(captures.get(6).unwrap().as_str()) {
             Ok(oper) => oper,
-            Err(e) => return Err(e)
+            Err(e) => return Err(e),
         };
 
         Ok(Instruction::Add {
@@ -165,8 +169,8 @@ impl LineParser {
             cond: Condition {
                 func: cond_f,
                 oper1: cond_a,
-                oper2: cond_b
-            }
+                oper2: cond_b,
+            },
         })
     }
 }
